@@ -1,8 +1,9 @@
-from fastapi import APIRouter,Depends,HTTPException,Query
+from typing import Annotated
+from fastapi import APIRouter,Depends,Query
 
 from database import get_db
 import services.customer_services as customer_services
-from schemas import CustomerResponse,CustomerNotFound
+from schemas import CustomerResponse,CustomerNotFound,CustomerSearch
 
 
 
@@ -17,16 +18,20 @@ router = APIRouter(
 async def get_customer(customer_id:int, conn= Depends(get_db)):
 
     return customer_services.get_customer(customer_id,conn)
+
     
-
-
-
-
 @router.get("/",response_model=list[CustomerResponse])
-async def get_customers(offset:int = Query(0,ge=0),
-                        limit:int = Query(10,ge=1,le=10),
+async def get_customers(offset:int | None = None,
+                        limit:int | None = None,
                         conn=Depends(get_db)):
 
     return customer_services.get_customers(offset,limit,conn)
-  
+
+
+@router.get("/search/",
+            response_model= CustomerResponse | list[CustomerResponse])
+async def search_customer(customer:Annotated[CustomerSearch,Query()],
+                    conn = Depends(get_db)):
+ 
+    return customer_services.search_customers(customer.first_name,customer.last_name,conn)
 

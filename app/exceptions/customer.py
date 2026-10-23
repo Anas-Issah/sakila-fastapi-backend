@@ -5,3 +5,6 @@ class CustomerNotFound(Exception):
 
 class CustomersNotFound(Exception):
     pass
+
+class CustomerSearchError(Exception):
+    pass

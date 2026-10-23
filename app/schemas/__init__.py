@@ -1,1 +1,1 @@
-from .customer import CustomerNotFound,CustomerResponse
+from .customer import CustomerNotFound,CustomerResponse,CustomerSearch
