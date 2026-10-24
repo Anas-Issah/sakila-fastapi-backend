@@ -10,8 +10,13 @@ import logging
 
 from api.v1.router import api_v1_router
 from core.app_logging import logging_setup
-from exceptions.customer import CustomerNotFound,CustomersNotFound,CustomerSearchError
-from exceptions.film import FilmsNotFound,FilmNotFound
+from exceptions.customer import (CustomerNotFound,CustomersNotFound,
+                                 CustomerSearchError,CustomerValueError,
+                                 CustomerHistoryError,CustomerPaymentError,
+                                 AddCustomerError,StoreIDError,AddressIDError,
+                                 StoreExistError,AddressExistError)
+
+from exceptions.film import FilmsNotFound,FilmNotFound,FilmTitleError
 
 
 logging_setup()
@@ -98,6 +103,94 @@ async def customer_search_error_handler(request:Request,exc:CustomerSearchError)
         }
     )
 
+@app.exception_handler(CustomerHistoryError)
+async def customer_rental_history_Error_handler(request:Request,exc:CustomerHistoryError):
+
+    return JSONResponse(
+        status_code=404,
+        content={
+            "error":"Customer history error",
+            "details":"Customer or customer rental history does not exist"
+        }
+    )
+
+
+@app.exception_handler(CustomerValueError)
+async def customer_value_error_handler(request:Request,exc:CustomerValueError):
+
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error":"Customer value error",
+            "detail":"Any of the fields can not be whitespace"
+        }
+    )
+
+@app.exception_handler(CustomerPaymentError)
+async def customer_payment_history_error_handler(request:Request,exc:CustomerPaymentError):
+
+    return JSONResponse(
+        status_code=404,
+        content={
+            "error":"Customer payment error",
+            "detail":"Customer or customer payment history does not exist"
+        }
+    )
+
+@app.exception_handler(AddCustomerError)
+async def add_customer_error_handler(request:Request,exc:AddCustomerError):
+
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error":"Add customer error",
+            "detail":"Adding new customer unsuccessful"
+        }
+    )
+
+@app.exception_handler(StoreIDError)
+async def store_id_error_handler(request:Request,exc:StoreIDError):
+
+    return JSONResponse(
+        status_code=404,
+        content={
+            "error":"Store id error",
+            "detail":"Store id provided does not exist"
+        }
+    )
+
+@app.exception_handler(AddressIDError)
+async def address_id_error_handler(request:Request,exc:AddressIDError):
+
+    return JSONResponse(
+        status_code=404,
+        content={
+            "error":"Address id error",
+            "detail":"Address id provided does not exist"
+        }
+    )
+
+@app.exception_handler(StoreExistError)
+async def store_exist_error_handler(request:Request,exc:StoreExistError):
+
+    return JSONResponse(
+        status_code=404,
+        content={
+            "error":"Store exist error",
+            "detail":"Store entity do not exist"
+        }
+    )
+
+@app.exception_handler(StoreExistError)
+async def address_exist_error_handler(request:Request,exc:StoreExistError):
+
+    return JSONResponse(
+        status_code=404,
+        content={
+            "error":"Address exist error",
+            "detail":"Address entity do not exist"
+        }
+    )
 
 # films
 @app.exception_handler(FilmNotFound)
@@ -122,6 +215,17 @@ async def film_not_found_error_handler(request:Request,exc:FilmsNotFound):
         }
     )
 
+
+@app.exception_handler(FilmTitleError)
+async def film_title_error_handler(request:Request,exc:FilmTitleError):
+
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error":"Film title error",
+            "details":"Film title can not be empty"
+        }
+    )
 
 
 # psycopg

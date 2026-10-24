@@ -30,4 +30,16 @@ def get_films(offset:int|None,limit:int|None,conn):
         cur.execute(query,params)
 
         return cur.fetchall()
-            
+
+
+def search_by_title(film_title:str,conn):
+
+    with conn.cursor() as cur:
+
+        query = "SELECT film_id, title, release_year,length,rating " \
+                           "FROM film " \
+                           "WHERE title = %s"
+
+        cur.execute(query,(film_title,))
+
+        return cur.fetchone()

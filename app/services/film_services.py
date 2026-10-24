@@ -54,3 +54,18 @@ def get_films(page:int | None ,limit:int | None ,conn):
         ]
 
 
+def search_by_title(film_title:str,conn):
+    film_title = film_title.title()
+    film = film_repo.search_by_title(film_title,conn)
+
+    if not film:
+        raise FilmNotFound
+
+    return {
+            "film_id":film[0],
+            "title":film[1],
+            "release_year":film[2],
+            "length":film[3],
+            "rating":film[4]
+    
+        }

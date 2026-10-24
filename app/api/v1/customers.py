@@ -3,7 +3,7 @@ from fastapi import APIRouter,Depends,Query
 
 from database import get_db
 import services.customer_services as customer_services
-from schemas import CustomerResponse,CustomerNotFound,CustomerSearch
+from schemas import CustomerResponse,CustomerSearch,NewCustomer
 
 
 
@@ -35,3 +35,30 @@ async def search_customer(customer:Annotated[CustomerSearch,Query()],
  
     return customer_services.search_customers(customer.first_name,customer.last_name,conn)
 
+
+@router.get("/{customer_id}/rentals")
+async def get_customer_rental_history(customer_id:int,
+                                      conn=Depends(get_db)):
+
+    
+
+        return customer_services.get_customer_rental_history(customer_id,conn)
+
+
+@router.get("/{customer_id}/payment")
+async def get_customer_payment_history(customer_id:int,
+                                      conn=Depends(get_db)):
+
+    
+
+        return customer_services.get_customer_payment_history(customer_id,conn)  
+
+@router.post("")
+async def add_customer(customer:NewCustomer,conn=Depends(get_db)):
+
+      return customer_services.add_customer(
+            customer.store_id,customer.first_name,
+            customer.last_name,customer.email,
+            customer.address_id,
+            conn
+      )

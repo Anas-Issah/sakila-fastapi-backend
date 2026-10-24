@@ -1,7 +1,10 @@
 from fastapi.exceptions import RequestValidationError
 
 import repositories.customer_repository as customer_repo
-from exceptions.customer import CustomerNotFound,CustomersNotFound,CustomerSearchError
+from exceptions.customer import (CustomerNotFound,CustomersNotFound,CustomerSearchError,
+                                 CustomerHistoryError,CustomerPaymentError,StoreIDError,
+                                 AddressIDError,AddCustomerError,StoreExistError,
+                                 AddressExistError)
 
 def get_customer(customer_id:int,conn):
 
@@ -93,3 +96,73 @@ def get_customers(page:int | None,limit: int | None,conn):
     }
     for customer in customers
     ]
+
+def get_customer_rental_history(customer_id:int,conn):
+
+    rental_history = customer_repo.get_customer_rental_history(customer_id,conn)
+
+    if not rental_history:
+        raise CustomerHistoryError
+
+
+    return [
+            {"customer_id":history[0],
+             "customer_name":history[1],
+             "rental_id":history[2],
+             "film_title":history[3],
+             "rental_date":history[4]}
+             for history in rental_history
+        ]
+
+def get_customer_payment_history(customer_id:int,conn):
+
+    payment_history = customer_repo.get_customer_payment_history(customer_id,conn)
+
+    if not payment_history:
+        raise CustomerPaymentError
+
+
+    return [
+            {"customer_id":history[0],
+             "customer_name":history[1],
+             "rental_id":history[2],
+             "payment_id":history[3],
+             "amount":history[4],
+             "payment_date":history[5]}
+             for history in payment_history
+        ]
+
+def add_customer(store_id,first_name,
+        last_name,email,address_id,
+        conn):
+    
+    store_ids = customer_repo.get_store_ids(conn)
+    if not store_ids:
+        raise StoreExistError
+
+    store_ids = [id[0] for id in store_ids]
+    if store_id not in store_ids:
+        raise StoreIDError
+
+    address_ids = customer_repo.get_address_ids(conn)
+    if not address_ids:
+        raise AddressExistError
+    
+    address_ids =[id[0] for id in address_ids]
+    if address_id not in address_ids:
+        raise AddressIDError
+    
+    new_customer = customer_repo.add_customer(store_id,first_name,
+                                            last_name,email,address_id,
+                                            conn)
+
+    if not new_customer:
+        raise AddCustomerError
+
+    return {
+            "customer_id":new_customer[0],
+            "store_id":new_customer[1],
+            "first_name":new_customer[2],
+            "last_name":new_customer[3],
+            "email":new_customer[4]
+        }

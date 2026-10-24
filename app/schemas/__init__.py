@@ -1,1 +1,2 @@
-from .customer import CustomerNotFound,CustomerResponse,CustomerSearch
+from .customer import (CustomerNotFound,CustomerResponse,CustomerSearch,
+                       NewCustomer)

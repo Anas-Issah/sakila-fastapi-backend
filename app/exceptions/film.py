@@ -4,3 +4,6 @@ class FilmNotFound(Exception):
 
 class FilmsNotFound(Exception):
     pass
+
+class FilmTitleError(Exception):
+    pass

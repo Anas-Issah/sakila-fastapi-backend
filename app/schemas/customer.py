@@ -1,6 +1,8 @@
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
+from exceptions.customer import CustomerValueError
+
 class CustomerResponse(BaseModel):
     customer_id:int
     customer_first_name:str
@@ -25,6 +27,22 @@ class CustomerSearch(BaseModel):
             return None
 
         if not value.strip():
-            raise ValueError(f"{value} can not be whitespace")
+            raise CustomerValueError
+
+        return value
+
+class NewCustomer(BaseModel):
+    store_id:int
+    first_name:str
+    last_name:str
+    email:str
+    address_id:int
+
+    @field_validator("first_name","last_name","email")
+    @classmethod
+    def new_customer_validator(cls,value:str):
+
+        if not value.strip():
+            raise CustomerValueError
 
         return value
