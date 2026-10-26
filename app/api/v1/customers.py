@@ -62,3 +62,9 @@ async def add_customer(customer:NewCustomer,conn=Depends(get_db)):
             customer.address_id,
             conn
       )
+
+@router.delete("/{customer_id}")
+async def delete_customer(customer_id:int,conn=Depends(get_db)):
+
+    return customer_services.delete_customer(customer_id,conn)
+

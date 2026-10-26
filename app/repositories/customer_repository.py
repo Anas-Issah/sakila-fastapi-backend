@@ -92,12 +92,14 @@ def get_customer_payment_history(customer_id:int,conn):
 
         return cur.fetchall()
 
+
 def get_store_ids(conn):
 
      with conn.cursor() as cur:
         cur.execute("SELECT store_id FROM store")
         
         return cur.fetchall()
+
 
 def get_address_ids(conn):
 
@@ -122,3 +124,14 @@ def add_customer(
                             email,address_id))
 
         return cur.fetchone()
+
+
+def delete_customer(customer_id:int,conn):
+    
+    query = "DELETE FROM customer "
+    query += "WHERE customer_id = %s"
+
+    with conn.cursor() as cur:
+        cur.execute(query,(customer_id,))
+
+    

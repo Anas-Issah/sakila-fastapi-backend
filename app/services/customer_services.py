@@ -166,3 +166,20 @@ def add_customer(store_id,first_name,
             "last_name":new_customer[3],
             "email":new_customer[4]
         }
+
+
+def delete_customer(customer_id:int,conn):
+
+    customer = customer_repo.get_customer(customer_id,conn)
+
+    if not customer:
+        raise CustomerNotFound
+
+    
+    customer_repo.delete_customer(customer_id,conn)
+
+    return {
+        "stutuse_code":200,
+        "details":f"customer with ID {customer_id} successfully deleted."
+    }
+    
