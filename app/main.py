@@ -17,7 +17,7 @@ from exceptions.customer import (CustomerNotFound,CustomersNotFound,
                                  StoreExistError,AddressExistError)
 
 from exceptions.film import FilmsNotFound,FilmNotFound,FilmTitleError
-
+from exceptions.users import UsernamePasswordValueError,UsernameTaken
 
 logging_setup()
 logger = logging.getLogger(__name__)
@@ -52,6 +52,8 @@ async def log_request(request:Request,call_next):
                     "statuscode":response.status_code
                 })
     return response
+
+
 
 
 # exception handlers
@@ -227,6 +229,30 @@ async def film_title_error_handler(request:Request,exc:FilmTitleError):
         }
     )
 
+# users
+
+@app.exception_handler(UsernameTaken)
+async def username_taken_error_handler(request:Request,exc:UsernameTaken):
+
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error":"Username taken error",
+            "details":"Username taken by another user"
+        }
+    )
+
+@app.exception_handler(UsernamePasswordValueError)
+async def username_password_value_error_handler(request:Request,exc:UsernamePasswordValueError):
+
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error":"Username Password value error",
+            "details":"username and password cannot be empty or a whitespace"
+        }
+    )
+
 
 # psycopg
 @app.exception_handler(DatabaseError)
@@ -239,6 +265,7 @@ async def psycopg_error_handler(request:Request,exc:DatabaseError):
                 "details":"A database error occured"
             }
     )
+
 
 # general
 

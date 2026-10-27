@@ -69,3 +69,4 @@ def search_by_title(film_title:str,conn):
             "rating":film[4]
     
         }
+

@@ -110,8 +110,8 @@ def get_address_ids(conn):
      
 
 def add_customer(
-        store_id,first_name,
-        last_name,email,address_id,
+        store_id:int,first_name:str,
+        last_name:str,email:str,address_id:int,
         conn):
 
     query = "INSERT INTO customer(store_id,first_name,last_name,email,address_id) "
