@@ -1,21 +1,23 @@
 from typing import Annotated
 from fastapi import APIRouter,Depends,Query
+from fastapi.security import OAuth2PasswordBearer
 
 from database import get_db
 import services.customer_services as customer_services
 from schemas import CustomerResponse,CustomerSearch,NewCustomer
 
-
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login")
 
 router = APIRouter(
     prefix="/customers",
     tags=["Customers"]
     )
 
+
 @router.get("/{customer_id}",
             response_model=CustomerResponse)
-async def get_customer(customer_id:int, conn= Depends(get_db)):
+async def get_customer(customer_id:int, conn= Depends(get_db),
+                       token:str = Depends(oauth2_scheme)):
 
     return customer_services.get_customer(customer_id,conn)
 
@@ -23,7 +25,8 @@ async def get_customer(customer_id:int, conn= Depends(get_db)):
 @router.get("/",response_model=list[CustomerResponse])
 async def get_customers(offset:int | None = None,
                         limit:int | None = None,
-                        conn=Depends(get_db)):
+                        conn=Depends(get_db),
+                        token:str = Depends(oauth2_scheme)):
 
     return customer_services.get_customers(offset,limit,conn)
 
@@ -31,14 +34,14 @@ async def get_customers(offset:int | None = None,
 @router.get("/search/",
             response_model= CustomerResponse | list[CustomerResponse])
 async def search_customer(customer:Annotated[CustomerSearch,Query()],
-                    conn = Depends(get_db)):
+                    conn = Depends(get_db),token:str = Depends(oauth2_scheme)):
  
     return customer_services.search_customers(customer.first_name,customer.last_name,conn)
 
 
 @router.get("/{customer_id}/rentals")
 async def get_customer_rental_history(customer_id:int,
-                                      conn=Depends(get_db)):
+                                      conn=Depends(get_db),token:str = Depends(oauth2_scheme)):
 
     
 
@@ -47,14 +50,15 @@ async def get_customer_rental_history(customer_id:int,
 
 @router.get("/{customer_id}/payment")
 async def get_customer_payment_history(customer_id:int,
-                                      conn=Depends(get_db)):
+                                      conn=Depends(get_db),token:str = Depends(oauth2_scheme)):
 
     
 
         return customer_services.get_customer_payment_history(customer_id,conn)  
 
 @router.post("")
-async def add_customer(customer:NewCustomer,conn=Depends(get_db)):
+async def add_customer(customer:NewCustomer,conn=Depends(get_db),
+                       token:str = Depends(oauth2_scheme)):
 
       return customer_services.add_customer(
             customer.store_id,customer.first_name,
@@ -64,7 +68,6 @@ async def add_customer(customer:NewCustomer,conn=Depends(get_db)):
       )
 
 @router.delete("/{customer_id}")
-async def delete_customer(customer_id:int,conn=Depends(get_db)):
+async def delete_customer(customer_id:int,conn=Depends(get_db),token:str = Depends(oauth2_scheme)):
 
     return customer_services.delete_customer(customer_id,conn)
-

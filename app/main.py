@@ -22,6 +22,9 @@ from exceptions.users import UsernamePasswordValueError,UsernameTaken
 logging_setup()
 logger = logging.getLogger(__name__)
 
+
+
+
 @asynccontextmanager
 async def lifespan(app:FastAPI):
 
@@ -39,6 +42,7 @@ app.add_middleware(
 
 app.include_router(api_v1_router)
 
+    
 @app.middleware("http")
 async def log_request(request:Request,call_next):
     "middleware to log request response"
