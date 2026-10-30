@@ -17,7 +17,7 @@ from exceptions.customer import (CustomerNotFound,CustomersNotFound,
                                  StoreExistError,AddressExistError)
 
 from exceptions.film import FilmsNotFound,FilmNotFound,FilmTitleError
-from exceptions.users import UsernamePasswordValueError,UsernameTaken
+from exceptions.users import UsernamePasswordValueError,UsernameTaken,WrongUserPassword,UserNotFound
 
 logging_setup()
 logger = logging.getLogger(__name__)
@@ -257,6 +257,27 @@ async def username_password_value_error_handler(request:Request,exc:UsernamePass
         }
     )
 
+@app.exception_handler(UserNotFound)
+async def user_not_found_error_handler(request:Request,exc:UserNotFound):
+
+    return JSONResponse(
+        status_code=404,
+        content={
+            "error":"User not Found error",
+            "details":"User does not exist"
+        }
+    )
+
+@app.exception_handler(WrongUserPassword)
+async def wrong_password_error_handler(request:Request,exc:WrongUserPassword):
+
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error":"Wrong user password",
+            "details":"Password incorrect"
+        }
+    )
 
 # psycopg
 @app.exception_handler(DatabaseError)
