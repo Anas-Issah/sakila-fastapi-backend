@@ -1,5 +1,6 @@
 import os
 import uuid
+import time
 import jwt
 from pwdlib import PasswordHash
 from datetime import datetime,timezone,timedelta
@@ -22,6 +23,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 
 revoked_refresh_tokens = set()
+user_requests = {}
 
 def hashed_word(password:str):
 
@@ -53,7 +55,7 @@ def create_user(username:str,password:str,conn):
 
 def create_token(user_id:str,username:str,token_type:str):
 
-    expire_delta = timedelta(minutes=1) if token_type == "access" else timedelta(days=10)
+    expire_delta = timedelta(minutes=15) if token_type == "access" else timedelta(days=10)
 
     payload = {
         "user_id":str(user_id),
@@ -172,7 +174,7 @@ def refresh_token(token):
         "token_type":"Bearer"
     }
 
-def get_current_user(token:str = Depends(oauth2_scheme)):
+def get_current_user(token:str=Depends(oauth2_scheme)):
    
     try:
         payload = jwt.decode(
@@ -200,3 +202,27 @@ def get_current_user(token:str = Depends(oauth2_scheme)):
         )
 
     return payload
+
+def  user_rate_limit(rate:int,window:int):
+
+    def rate_limit_checker(payload = Depends(get_current_user)):
+
+        current_time = time.time()
+
+        user_id =  payload["user_id"]
+
+        if not user_id in user_requests:
+            user_requests[user_id] = []
+
+        user_requests[user_id] = [timestamp for timestamp in user_requests[user_id]
+                                  if current_time - timestamp < window]
+
+        if len(user_requests[user_id]) >= rate:
+            raise HTTPException(
+                status_code=429,
+                detail="Too many request"
+            )
+
+        user_requests[user_id].append(current_time)
+
+    return rate_limit_checker
