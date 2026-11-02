@@ -1,7 +1,7 @@
 from fastapi import APIRouter,Depends
 from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
 
-from database.connection import get_db
+from ..dependencies import get_db
 from schemas.user import NewUser
 import services.user_services as user_services
 
@@ -22,7 +22,7 @@ async def create_user(new_user:NewUser,conn=Depends(get_db)):
 async def login(form:OAuth2PasswordRequestForm = Depends(),
                 conn = Depends(get_db)):
 
-    return user_services.login(form.username,form.password,conn)
+    return await user_services.login(form.username,form.password,conn)
 
 @router.post("/refresh")
 async def refreh_token(token:str = Depends(oauth2_scheme)):

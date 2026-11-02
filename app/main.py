@@ -8,6 +8,10 @@ from psycopg.errors import Error as DatabaseError
 from contextlib import asynccontextmanager
 import logging
 
+from redis.exceptions import ConnectionError,TimeoutError,RedisError
+
+from core.redis_config import redis_manager
+from database.connection import database_manager
 from api.v1.router import api_v1_router
 from core.app_logging import logging_setup
 from exceptions.customer import (CustomerNotFound,CustomersNotFound,
@@ -27,8 +31,15 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
+    # initialize database
+    await database_manager.init_database()
 
+    # initialize redis
+    # redis_manager.init_redis()
+    
     yield
+
+    await database_manager.close_database()
 
 app = FastAPI(lifespan=lifespan)
 
@@ -290,18 +301,50 @@ async def psycopg_error_handler(request:Request,exc:DatabaseError):
                 "details":"A database error occured"
             }
     )
+# redis
+@app.exception_handler(ConnectionError)
+async def redis_connection_error_handler(request:Request,exc:ConnectionError):
+
+    return JSONResponse(
+        status_code = 500,
+        content={
+            "error":"Redis connection error",
+            "details":"Redis connection error occured"
+        }
+    )
+
+@app.exception_handler(TimeoutError)
+async def redis_timeout_error_handler(request:Request,exc:TimeoutError):
+
+    return JSONResponse(
+        status_code = 500,
+        content={
+            "error":"Redis timeout error",
+            "details":"Redis timeout error occured"
+        }
+    )
+@app.exception_handler(RedisError)
+async def redis_error_handler(request:Request,exc:RedisError):
+
+    return JSONResponse(
+        status_code = 500,
+        content={
+            "error":"Redis  error",
+            "details":"Redis error occured"
+        }
+    )
 
 
 # general
 
-@app.exception_handler(ValueError)
-async def value_error_handler(request:Request,exc:ValueError):
+# @app.exception_handler(ValueError)
+# async def value_error_handler(request:Request,exc:ValueError):
 
-    return JSONResponse(
-        status_code=422,
-        content={
-            "error":"Value error",
-            "details":"Digit should not be negative",
+#     return JSONResponse(
+#         status_code=422,
+#         content={
+#             "error":"Value error",
+#             "details":"Digit should not be negative",
         
-        }
-    )
+#         }
+#     )

@@ -1,14 +1,38 @@
-from psycopg_pool import ConnectionPool
+import os
+import asyncio
 
+from dotenv import load_dotenv
+from psycopg_pool import AsyncConnectionPool
 
-pool = ConnectionPool(
-    """dbname=dvd_rental
-    user=postgres
-    host=localhost
-    password=BEBOANO12""",
-    min_size=5,max_size=10
-)
-def get_db():
+load_dotenv()
 
-    with pool.connection() as conn:
-        yield conn
+class DatabaseManager:
+
+    def __init__(self):
+        self.pool: AsyncConnectionPool | None = None
+
+    async def init_database(self):
+
+        DB_NAME = os.getenv("DB_NAME")
+        DB_HOST = os.getenv("DB_HOST")
+        DB_PASSWORD = os.getenv("DB_PASSWORD")
+        DB_USER = os.getenv("DB_USER")
+     
+        self.pool =  AsyncConnectionPool(
+            f"""dbname={DB_NAME}
+            user={DB_USER}
+            host={DB_HOST}
+            password={DB_PASSWORD}""",
+            min_size=5,max_size=10,
+            open=False
+        )
+
+        await self.pool.open()
+    
+    async def close_database(self):
+
+        if self.pool:
+            await self.pool.close()
+
+database_manager = DatabaseManager()
+

@@ -1,7 +1,7 @@
 from fastapi import APIRouter,HTTPException,Depends,Query
 from fastapi.security import OAuth2PasswordBearer
 
-from database.connection import get_db
+from ..dependencies import get_db
 from schemas.films import FilmResponse,TitleSearch
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login")

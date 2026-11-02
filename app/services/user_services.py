@@ -72,14 +72,16 @@ def create_token(user_id:str,username:str,token_type:str):
     )
     
 
-def login(username:str,password:str,conn):
+async def login(username:str,password:str,conn):
 
-    user = repo_users.get_user(username,password,conn)
+    user = await repo_users.get_user(username,password,conn)
+
 
     if not user:
         raise UserNotFound
 
-    user_id,hashed_password = user
+    user_id,hashed_password =  user[0],user[1]
+  
     password_hash = PasswordHash.recommended()
 
     if not password_hash.verify(

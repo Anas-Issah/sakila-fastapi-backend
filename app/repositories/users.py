@@ -1,4 +1,4 @@
-
+from psycopg.rows import dict_row
 
 def check_username(username:str,conn):
 
@@ -20,13 +20,13 @@ def create_user(user_id,username:str,password_hash:str,conn):
 
         return cur.fetchone()
 
-def get_user(username:str,password:str,conn):
+async def get_user(username:str,password:str,conn):
 
     query = "SELECT user_id,password_hash "
     query += "FROM users "
     query += "WHERE username = %s"
 
-    with conn.cursor() as cur:
-        cur.execute(query,(username,))
+    async with conn.cursor() as cur:
+        await cur.execute(query,(username,))
 
-        return cur.fetchone()
+        return await cur.fetchone() 

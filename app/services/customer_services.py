@@ -6,21 +6,29 @@ from exceptions.customer import (CustomerNotFound,CustomersNotFound,CustomerSear
                                  AddressIDError,AddCustomerError,StoreExistError,
                                  AddressExistError)
 
+customer_cache = {}
+
 def get_customer(customer_id:int,conn):
+
+    if customer_id  in customer_cache:
+
+        return customer_cache[customer_id]
 
     customer = customer_repo.get_customer(customer_id,conn)
 
     if not customer:
         raise CustomerNotFound
 
-    return {
-        
-        "customer_id":customer[0],
-        "customer_first_name":customer[1],
-        "customer_last_name":customer[2],
-        "customer_email":customer[3]
-    
-    }
+    returned_customer = {
+            "customer_id":customer[0],
+            "customer_first_name":customer[1],
+            "customer_last_name":customer[2],
+            "customer_email":customer[3]
+            }
+
+    customer_cache[customer_id] = returned_customer
+
+    return returned_customer
 
 def search_customers(first_name:str | None,last_name:str | None,conn):
 

@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter,Depends,Query
 from fastapi.security import OAuth2PasswordBearer
 
-from database import get_db
+from ..dependencies import get_db
 import services.customer_services as customer_services
 from schemas import CustomerResponse,CustomerSearch,NewCustomer
 from services.user_services import get_current_user,user_rate_limit
@@ -48,8 +48,8 @@ async def search_customer(customer:Annotated[CustomerSearch,Query()],
 
 @router.get("/{customer_id}/rentals",dependencies=[Depends(user_rate_limit(10,60))])
 async def get_customer_rental_history(customer_id:int,
-                                      conn=Depends(get_db),
-                                      current_user=Depends(get_current_user)):
+                                    conn=Depends(get_db),
+                                    current_user=Depends(get_current_user)):
 
         return customer_services.get_customer_rental_history(customer_id,conn)
 
@@ -58,7 +58,6 @@ async def get_customer_rental_history(customer_id:int,
 async def get_customer_payment_history(customer_id:int,
                                     conn=Depends(get_db),
                                     current_user=Depends(get_current_user)
-
                                       ):
 
         return customer_services.get_customer_payment_history(customer_id,conn)  
@@ -77,6 +76,6 @@ async def add_customer(customer:NewCustomer,conn=Depends(get_db),
 
 @router.delete("/{customer_id}")
 async def delete_customer(customer_id:int,conn=Depends(get_db),
-                          current_user=Depends(get_current_user)):
+                        current_user=Depends(get_current_user)):
 
     return customer_services.delete_customer(customer_id,conn)
