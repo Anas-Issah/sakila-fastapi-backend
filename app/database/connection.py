@@ -1,5 +1,5 @@
 import os
-import asyncio
+
 
 from dotenv import load_dotenv
 from psycopg_pool import AsyncConnectionPool
@@ -17,12 +17,11 @@ class DatabaseManager:
         DB_HOST = os.getenv("DB_HOST")
         DB_PASSWORD = os.getenv("DB_PASSWORD")
         DB_USER = os.getenv("DB_USER")
-     
+        DB_PORT = os.getenv("DB_PORT")
+
+        print(DB_HOST)        
         self.pool =  AsyncConnectionPool(
-            f"""dbname={DB_NAME}
-            user={DB_USER}
-            host={DB_HOST}
-            password={DB_PASSWORD}""",
+            f"dbname={DB_NAME} user={DB_USER} host={DB_HOST} password={DB_PASSWORD} port={DB_PORT}",
             min_size=5,max_size=10,
             open=False
         )

@@ -10,18 +10,18 @@ import logging
 
 from redis.exceptions import ConnectionError,TimeoutError,RedisError
 
-from core.redis_config import redis_manager
-from database.connection import database_manager
-from api.v1.router import api_v1_router
-from core.app_logging import logging_setup
-from exceptions.customer import (CustomerNotFound,CustomersNotFound,
+from app.core.redis_config import redis_manager
+from app.database.connection import database_manager
+from app.api.v1.router import api_v1_router
+from app.core.app_logging import logging_setup
+from app.exceptions.customer import (CustomerNotFound,CustomersNotFound,
                                  CustomerSearchError,CustomerValueError,
                                  CustomerHistoryError,CustomerPaymentError,
                                  AddCustomerError,StoreIDError,AddressIDError,
                                  StoreExistError,AddressExistError)
 
-from exceptions.film import FilmsNotFound,FilmNotFound,FilmTitleError
-from exceptions.users import UsernamePasswordValueError,UsernameTaken,WrongUserPassword,UserNotFound
+from app.exceptions.film import FilmsNotFound,FilmNotFound,FilmTitleError
+from app.exceptions.users import UsernamePasswordValueError,UsernameTaken,WrongUserPassword,UserNotFound
 
 logging_setup()
 logger = logging.getLogger(__name__)
@@ -337,14 +337,14 @@ async def redis_error_handler(request:Request,exc:RedisError):
 
 # general
 
-# @app.exception_handler(ValueError)
-# async def value_error_handler(request:Request,exc:ValueError):
+@app.exception_handler(ValueError)
+async def value_error_handler(request:Request,exc:ValueError):
 
-#     return JSONResponse(
-#         status_code=422,
-#         content={
-#             "error":"Value error",
-#             "details":"Digit should not be negative",
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error":"Value error",
+            "details":"Digit should not be negative",
         
-#         }
-#     )
+        }
+    )

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-import database.health_connect as connect
+import app.database.health_connect as connect
 
 router = APIRouter(
     prefix="/health",

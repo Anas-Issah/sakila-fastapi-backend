@@ -3,9 +3,9 @@ from fastapi import APIRouter,Depends,Query
 from fastapi.security import OAuth2PasswordBearer
 
 from ..dependencies import get_db
-import services.customer_services as customer_services
-from schemas import CustomerResponse,CustomerSearch,NewCustomer
-from services.user_services import get_current_user,user_rate_limit
+import app.services.customer_services as customer_services
+from app.schemas import CustomerResponse,CustomerSearch,NewCustomer
+from app.services.user_services import get_current_user,user_rate_limit
 
 
 

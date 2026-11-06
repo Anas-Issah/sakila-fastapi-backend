@@ -1,6 +1,6 @@
 from pydantic import BaseModel,field_validator
 
-from exceptions.users import UsernamePasswordValueError
+from app.exceptions.users import UsernamePasswordValueError
 
 class NewUser(BaseModel):
     username:str

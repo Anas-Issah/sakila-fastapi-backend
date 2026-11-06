@@ -1,5 +1,5 @@
-import repositories.film_repository as film_repo
-from exceptions.film import FilmNotFound,FilmsNotFound
+import app.repositories.film_repository as film_repo
+from app.exceptions.film import FilmNotFound,FilmsNotFound
 
 
 def get_film(customer_id:int,conn):

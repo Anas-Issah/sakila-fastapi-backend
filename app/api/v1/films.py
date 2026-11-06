@@ -2,10 +2,11 @@ from fastapi import APIRouter,HTTPException,Depends,Query
 from fastapi.security import OAuth2PasswordBearer
 
 from ..dependencies import get_db
-from schemas.films import FilmResponse,TitleSearch
+from app.schemas.films import FilmResponse,TitleSearch
+import app.services.film_services as film_services
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login")
-import services.film_services as film_services
+
 router = APIRouter(
     prefix="/films",
     tags=["Films"]

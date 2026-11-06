@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel, field_validator
 
-from exceptions.customer import CustomerValueError
+from app.exceptions.customer import CustomerValueError
 
 class CustomerResponse(BaseModel):
     customer_id:int

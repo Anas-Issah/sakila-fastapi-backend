@@ -1,6 +1,6 @@
 from pydantic import BaseModel,field_validator
 
-from exceptions.film import FilmTitleError
+from app.exceptions.film import FilmTitleError
 
 class FilmResponse(BaseModel):
     film_id:int

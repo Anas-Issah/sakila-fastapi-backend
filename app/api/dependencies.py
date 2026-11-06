@@ -1,7 +1,7 @@
 
 from redis.exceptions import ConnectionError
-from core.redis_config import redis_manager
-from database.connection import database_manager
+from app.core.redis_config import redis_manager
+from app.database.connection import database_manager
 from psycopg.errors import Error as DatabaseError
 
 

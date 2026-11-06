@@ -1,4 +1,3 @@
-from psycopg.rows import dict_row
 
 def check_username(username:str,conn):
 

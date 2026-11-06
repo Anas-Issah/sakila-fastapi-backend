@@ -1,7 +1,7 @@
 from fastapi.exceptions import RequestValidationError
 
-import repositories.customer_repository as customer_repo
-from exceptions.customer import (CustomerNotFound,CustomersNotFound,CustomerSearchError,
+import app.repositories.customer_repository as customer_repo
+from app.exceptions.customer import (CustomerNotFound,CustomersNotFound,CustomerSearchError,
                                  CustomerHistoryError,CustomerPaymentError,StoreIDError,
                                  AddressIDError,AddCustomerError,StoreExistError,
                                  AddressExistError)

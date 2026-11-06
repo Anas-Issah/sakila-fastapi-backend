@@ -11,8 +11,8 @@ from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends
 
-from exceptions.users import UsernameTaken,UserNotFound,WrongUserPassword
-import repositories.users as repo_users
+from app.exceptions.users import UsernameTaken,UserNotFound,WrongUserPassword
+import app.repositories.users as repo_users
 
 
 oauth2_scheme = OAuth2PasswordBearer("/api/v1/users/login")

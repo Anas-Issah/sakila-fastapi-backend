@@ -2,8 +2,8 @@ from fastapi import APIRouter,Depends
 from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
 
 from ..dependencies import get_db
-from schemas.user import NewUser
-import services.user_services as user_services
+from app.schemas.user import NewUser
+import app.services.user_services as user_services
 
 
 router = APIRouter(
