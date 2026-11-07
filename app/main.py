@@ -35,11 +35,12 @@ async def lifespan(app:FastAPI):
     await database_manager.init_database()
 
     # initialize redis
-    # redis_manager.init_redis()
+    redis_manager.init_redis()
     
     yield
 
     await database_manager.close_database()
+    await redis_manager.close_redis()
 
 app = FastAPI(lifespan=lifespan)
 
