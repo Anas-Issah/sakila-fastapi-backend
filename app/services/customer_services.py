@@ -1,3 +1,5 @@
+import json
+import logging
 from fastapi.exceptions import RequestValidationError
 
 import app.repositories.customer_repository as customer_repo
@@ -6,15 +8,29 @@ from app.exceptions.customer import (CustomerNotFound,CustomersNotFound,Customer
                                  AddressIDError,AddCustomerError,StoreExistError,
                                  AddressExistError)
 
-customer_cache = {}
+import redis.exceptions as redis_exceptions
 
-def get_customer(customer_id:int,conn):
+from app.api.dependencies import get_redis
 
-    if customer_id  in customer_cache:
+logger = logging.getLogger(__name__)
 
-        return customer_cache[customer_id]
+async def get_customer(customer_id:int,conn):
 
-    customer = customer_repo.get_customer(customer_id,conn)
+    cached_key = f"customer{customer_id}"
+    try:
+        
+        redis_client = await get_redis()
+
+        if redis_client is not None:
+            cached_customer = await redis_client.get(cached_key)
+
+        if cached_customer is not None:    
+                return json.loads(cached_customer)
+
+    except redis_exceptions.ConnectionError:
+        logger.warning("Redis is unreachable")
+
+    customer = await customer_repo.get_customer(customer_id,conn)
 
     if not customer:
         raise CustomerNotFound
@@ -25,8 +41,13 @@ def get_customer(customer_id:int,conn):
             "customer_last_name":customer[2],
             "customer_email":customer[3]
             }
+    try:
 
-    customer_cache[customer_id] = returned_customer
+        if redis_client is not None:
+            await redis_client.set(cached_key,json.dumps(returned_customer),ex=60)
+
+    except redis_exceptions.ConnectionError:
+        logger.warning("Redis is unreachable")
 
     return returned_customer
 

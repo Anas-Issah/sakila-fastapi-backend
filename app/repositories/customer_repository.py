@@ -1,12 +1,15 @@
 
-def get_customer(customer_id:int,conn):
-    with conn.cursor() as cur:
-            cur.execute("SELECT customer_id, first_name, last_name," \
+async def get_customer(customer_id:int,conn):
+    async with conn.cursor() as cur:
+            
+            await cur.execute("SELECT customer_id, first_name, last_name," \
                 " email " \
             " FROM customer " \
             "WHERE customer_id = %s",(customer_id,))
+
+            customer = await cur.fetchone()
     
-            return cur.fetchone()
+            return customer
 
 def search_customer(first_name:str | None, last_name:str | None,conn):
 

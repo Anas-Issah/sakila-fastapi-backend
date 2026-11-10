@@ -58,7 +58,7 @@ app.include_router(api_v1_router)
 @app.middleware("http")
 async def log_request(request:Request,call_next):
     "middleware to log request response"
-
+   
     response = await call_next(request)
 
     logger.info("HTTP request",

@@ -21,7 +21,7 @@ async def get_customer(customer_id:int, conn= Depends(get_db),
                        current_user=Depends(get_current_user)
                        ):
 
-    return customer_services.get_customer(customer_id,conn)
+    return await customer_services.get_customer(customer_id,conn)
 
     
 @router.get("/",response_model=list[CustomerResponse],

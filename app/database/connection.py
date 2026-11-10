@@ -19,7 +19,7 @@ class DatabaseManager:
         DB_USER = os.getenv("DB_USER")
         DB_PORT = os.getenv("DB_PORT")
 
-        print(DB_HOST)        
+        
         self.pool =  AsyncConnectionPool(
             f"dbname={DB_NAME} user={DB_USER} host={DB_HOST} password={DB_PASSWORD} port={DB_PORT}",
             min_size=5,max_size=10,
