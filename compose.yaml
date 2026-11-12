@@ -1,4 +1,4 @@
-
+name: sakila-backend
 services:
   db:
     image: postgres:15-alpine
@@ -8,9 +8,9 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ./init-db:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
@@ -26,18 +26,13 @@ services:
     volumes:
       - redis-data:/data
     command:
-      -redis-server
+      - redis-server
       - --appendonly
       - "yes"
       - --maxmemory
       - 100mb
       - --maxmemory-policy
       - allkeys-lru
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
 
   api:
     build: .
@@ -52,13 +47,15 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
     depends_on:
       db:
         condition: service_healthy
       redis:
-        condition: service_healthy
+        condition: service_started
     restart: unless-stopped
 
 volumes:
-  postgres_data:
-  redis_data:
+  postgres-data:
+  redis-data:

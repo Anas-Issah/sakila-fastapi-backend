@@ -20,7 +20,7 @@ oauth2_scheme = OAuth2PasswordBearer("/api/v1/users/login")
 load_dotenv(Path.cwd().parent/"app"/".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
+ALGORITHM = str(os.getenv("ALGORITHM"))
 
 revoked_refresh_tokens = set()
 user_requests = {}
