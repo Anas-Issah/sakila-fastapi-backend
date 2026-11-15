@@ -11,7 +11,7 @@ async def get_customer(customer_id:int,conn):
     
             return customer
 
-def search_customer(first_name:str | None, last_name:str | None,conn):
+async def search_customer(first_name:str | None, last_name:str | None,conn):
 
     query = "SELECT customer_id, first_name, last_name, email " 
     query += "FROM customer "
@@ -31,13 +31,14 @@ def search_customer(first_name:str | None, last_name:str | None,conn):
         else:
             query += "last_name = %s"
 
-    with conn.cursor() as cur:
-        cur.execute(query,(params))
+    async with conn.cursor() as cur:
+        await cur.execute(query,(params))
+        customer = await cur.fetchall()
 
-        return cur.fetchall()
+        return customer
 
     
-def get_customers(offset:int | None,limit:int | None ,conn):
+async def get_customers(offset:int | None,limit:int | None ,conn):
 
     query = "SELECT customer_id, first_name, last_name, email FROM customer " \
         "   ORDER BY customer_id ASC"
@@ -51,15 +52,16 @@ def get_customers(offset:int | None,limit:int | None ,conn):
         query += " LIMIT %s"
         params.append(limit)
 
-    with conn.cursor() as cur:
-        cur.execute(query,(params))
+    async with conn.cursor() as cur:
+        await cur.execute(query,(params))
+        customers = await cur.fetchall()
 
-        return cur.fetchall()
+        return customers
 
 
-def get_customer_rental_history(customer_id:int,conn):
+async def get_customer_rental_history(customer_id:int,conn):
 
-    with conn.cursor() as cur:
+    async with conn.cursor() as cur:
     
             query = "SELECT c.customer_id, CONCAT(c.first_name,' ',c.last_name) AS customer_name, "
             query += "r.rental_id,f.title,CAST(r.rental_date AS DATE) AS rental_date "
@@ -73,12 +75,13 @@ def get_customer_rental_history(customer_id:int,conn):
             query += "WHERE c.customer_id = %s "
             query += "ORDER BY rental_date"
     
-            cur.execute(query,(customer_id,))
-    
-            return cur.fetchall()
+            await cur.execute(query,(customer_id,))
+            customer_history = await cur.fetchall()
+            
+            return customer_history
 
 
-def get_customer_payment_history(customer_id:int,conn):
+async def get_customer_payment_history(customer_id:int,conn):
 
     query = "SELECT c.customer_id,CONCAT(c.first_name,' ',c.last_name) AS customer_name,"
     query += "r.rental_id,p.payment_id,p.amount,CAST(p.payment_date AS DATE) AS payment_date "
@@ -90,29 +93,32 @@ def get_customer_payment_history(customer_id:int,conn):
     query += "WHERE c.customer_id = %s "
     query += "ORDER BY payment_date"
      
-    with conn.cursor() as cur:
-        cur.execute(query,(customer_id,))
+    async with conn.cursor() as cur:
+        await cur.execute(query,(customer_id,))
 
-        return cur.fetchall()
-
-
-def get_store_ids(conn):
-
-     with conn.cursor() as cur:
-        cur.execute("SELECT store_id FROM store")
-        
-        return cur.fetchall()
+        customer_history = await cur.fetchall()
+        return customer_history
 
 
-def get_address_ids(conn):
+async def get_store_ids(conn):
 
-     with conn.cursor() as cur:
-        cur.execute("SELECT address_id FROM address")
-        
-        return cur.fetchall()
+    async with conn.cursor() as cur:
+        await cur.execute("SELECT store_id FROM store")
+
+        store_id = await cur.fetchall()
+        return store_id
+
+
+async def get_address_ids(conn):
+
+    async with conn.cursor() as cur:
+        await cur.execute("SELECT address_id FROM address")
+
+        address_id = await cur.fetchall()
+        return address_id
      
 
-def add_customer(
+async def add_customer(
         store_id:int,first_name:str,
         last_name:str,email:str,address_id:int,
         conn):
@@ -121,20 +127,21 @@ def add_customer(
     query += "VALUES (%s,%s,%s,%s,%s) "
     query += "RETURNING *"
 
-    with conn.cursor() as cur:
+    async with conn.cursor() as cur:
 
-        cur.execute(query,(store_id,first_name,last_name,
+        await cur.execute(query,(store_id,first_name,last_name,
                             email,address_id))
+        new_customer = await cur.fetchone()
 
-        return cur.fetchone()
+        return new_customer
 
 
-def delete_customer(customer_id:int,conn):
+async def delete_customer(customer_id:int,conn):
     
     query = "DELETE FROM customer "
     query += "WHERE customer_id = %s"
 
-    with conn.cursor() as cur:
-        cur.execute(query,(customer_id,))
+    async with conn.cursor() as cur:
+        await cur.execute(query,(customer_id,))
 
     

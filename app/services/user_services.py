@@ -6,6 +6,10 @@ from pwdlib import PasswordHash
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
 from dotenv import load_dotenv
+import logging
+
+from app.api.dependencies import get_redis
+import redis.exceptions as redis_exceptions
 
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -24,6 +28,8 @@ ALGORITHM = str(os.getenv("ALGORITHM"))
 
 revoked_refresh_tokens = set()
 user_requests = {}
+
+logger = logging.getLogger(__name__)
 
 def hashed_word(password:str):
 
@@ -207,17 +213,49 @@ def get_current_user(token:str=Depends(oauth2_scheme)):
 
 def  user_rate_limit(rate:int,window:int):
 
-    def rate_limit_checker(payload = Depends(get_current_user)):
+    async def rate_limit_checker(payload = Depends(get_current_user)):
 
-        current_time = time.time()
-
+        now_ms = time.time_ns()// 1_000_000
+        
         user_id =  payload["user_id"]
+        key = f"rate_limit:{user_id}"
+        member = f"{user_id}:{uuid.uuid4().hex}"
+        try:
+            redis_client = await get_redis()
+            async with redis_client.pipeline(transaction=True) as pipe:
+                pipe.zremrangebyscore(key,"-inf",now_ms - window)
+                pipe.zcard(key)
+                _,count = await pipe.execute()
+
+            if count >= rate:
+                logger.info("Too many request")
+                raise HTTPException(
+                    status_code=429,
+                    detail="Too many request"
+                )
+
+            async with redis_client.pipeline(transaction=True) as pipe:
+                pipe.zadd(key,{member:now_ms})
+                pipe.pexpire(key,window)
+                _,_ = await pipe.execute()
+
+            return
+        
+        except redis_exceptions.RedisError:
+            logger.warning("redis unavailable")
+
+        except HTTPException:
+            raise
+
+        await delete_local_rate_limit(now_ms,window)
+        
+        logger.info("redis unavailable:using python dictionary for rate limiting")
 
         if not user_id in user_requests:
             user_requests[user_id] = []
 
         user_requests[user_id] = [timestamp for timestamp in user_requests[user_id]
-                                  if current_time - timestamp < window]
+                                  if now_ms - timestamp < window]
 
         if len(user_requests[user_id]) >= rate:
             raise HTTPException(
@@ -225,6 +263,12 @@ def  user_rate_limit(rate:int,window:int):
                 detail="Too many request"
             )
 
-        user_requests[user_id].append(current_time)
+        user_requests[user_id].append(now_ms)
 
-    return rate_limit_checker
+    return  rate_limit_checker
+
+async def delete_local_rate_limit(now_ms,window):
+
+    for user_rate in user_requests:
+        if now_ms - user_rate[-1] >  window:
+            del user_rate

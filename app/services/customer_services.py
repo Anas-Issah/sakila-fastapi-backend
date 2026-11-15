@@ -51,7 +51,7 @@ async def get_customer(customer_id:int,conn):
 
     return returned_customer
 
-def search_customers(first_name:str | None,last_name:str | None,conn):
+async def search_customers(first_name:str | None,last_name:str | None,conn):
 
     if first_name is None and last_name is None:
         raise CustomerSearchError
@@ -62,7 +62,7 @@ def search_customers(first_name:str | None,last_name:str | None,conn):
     if last_name:
         last_name = last_name.title()
 
-    customers = customer_repo.search_customer(first_name,last_name,conn)
+    customers = await customer_repo.search_customer(first_name,last_name,conn)
 
     if not customers:
         raise CustomerNotFound
@@ -91,7 +91,7 @@ def search_customers(first_name:str | None,last_name:str | None,conn):
 
 
 
-def get_customers(page:int | None,limit: int | None,conn):
+async def get_customers(page:int | None,limit: int | None,conn):
 
     if page != None:
         if page < 0:
@@ -109,7 +109,7 @@ def get_customers(page:int | None,limit: int | None,conn):
     if limit and limit < 0:
             raise ValueError
     
-    customers = customer_repo.get_customers(offset,limit,conn)
+    customers = await customer_repo.get_customers(offset,limit,conn)
 
 
 
@@ -126,9 +126,9 @@ def get_customers(page:int | None,limit: int | None,conn):
     for customer in customers
     ]
 
-def get_customer_rental_history(customer_id:int,conn):
+async def get_customer_rental_history(customer_id:int,conn):
 
-    rental_history = customer_repo.get_customer_rental_history(customer_id,conn)
+    rental_history = await customer_repo.get_customer_rental_history(customer_id,conn)
 
     if not rental_history:
         raise CustomerHistoryError
@@ -143,9 +143,9 @@ def get_customer_rental_history(customer_id:int,conn):
              for history in rental_history
         ]
 
-def get_customer_payment_history(customer_id:int,conn):
+async def get_customer_payment_history(customer_id:int,conn):
 
-    payment_history = customer_repo.get_customer_payment_history(customer_id,conn)
+    payment_history = await customer_repo.get_customer_payment_history(customer_id,conn)
 
     if not payment_history:
         raise CustomerPaymentError
@@ -161,11 +161,11 @@ def get_customer_payment_history(customer_id:int,conn):
              for history in payment_history
         ]
 
-def add_customer(store_id,first_name,
+async def add_customer(store_id,first_name,
         last_name,email,address_id,
         conn):
     
-    store_ids = customer_repo.get_store_ids(conn)
+    store_ids = await customer_repo.get_store_ids(conn)
     if not store_ids:
         raise StoreExistError
 
@@ -173,7 +173,7 @@ def add_customer(store_id,first_name,
     if store_id not in store_ids:
         raise StoreIDError
 
-    address_ids = customer_repo.get_address_ids(conn)
+    address_ids = await customer_repo.get_address_ids(conn)
     if not address_ids:
         raise AddressExistError
     
@@ -181,7 +181,7 @@ def add_customer(store_id,first_name,
     if address_id not in address_ids:
         raise AddressIDError
     
-    new_customer = customer_repo.add_customer(store_id,first_name,
+    new_customer = await customer_repo.add_customer(store_id,first_name,
                                             last_name,email,address_id,
                                             conn)
 
@@ -197,15 +197,15 @@ def add_customer(store_id,first_name,
         }
 
 
-def delete_customer(customer_id:int,conn):
+async def delete_customer(customer_id:int,conn):
 
-    customer = customer_repo.get_customer(customer_id,conn)
+    customer = await customer_repo.get_customer(customer_id,conn)
 
     if not customer:
         raise CustomerNotFound
 
     
-    customer_repo.delete_customer(customer_id,conn)
+    await customer_repo.delete_customer(customer_id,conn)
 
     return {
         "stutuse_code":200,

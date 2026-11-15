@@ -16,7 +16,7 @@ router = APIRouter(
 
 
 @router.get("/{customer_id}",response_model=CustomerResponse,
-            dependencies=[Depends(user_rate_limit(10,60))])
+            dependencies=[Depends(user_rate_limit(10,60000))])
 async def get_customer(customer_id:int, conn= Depends(get_db),
                        current_user=Depends(get_current_user)
                        ):
@@ -25,49 +25,49 @@ async def get_customer(customer_id:int, conn= Depends(get_db),
 
     
 @router.get("/",response_model=list[CustomerResponse],
-            dependencies=[Depends(user_rate_limit(10,60))])
+            dependencies=[Depends(user_rate_limit(10,60000))])
 async def get_customers(offset:int | None = None,
                         limit:int | None = None,
                         conn=Depends(get_db),
                         current_user=Depends(get_current_user)
                     ):
 
-    return customer_services.get_customers(offset,limit,conn)
+    return await customer_services.get_customers(offset,limit,conn)
 
 
 @router.get("/search/",
             response_model= CustomerResponse | list[CustomerResponse],
-            dependencies=[Depends(user_rate_limit(10,60))])
+            dependencies=[Depends(user_rate_limit(10,60000))])
 async def search_customer(customer:Annotated[CustomerSearch,Query()],
                     conn = Depends(get_db),
                     current_user=Depends(get_current_user)
                     ):
  
-    return customer_services.search_customers(customer.first_name,customer.last_name,conn)
+    return await customer_services.search_customers(customer.first_name,customer.last_name,conn)
 
 
-@router.get("/{customer_id}/rentals",dependencies=[Depends(user_rate_limit(10,60))])
+@router.get("/{customer_id}/rentals",dependencies=[Depends(user_rate_limit(10,60000))])
 async def get_customer_rental_history(customer_id:int,
                                     conn=Depends(get_db),
                                     current_user=Depends(get_current_user)):
 
-        return customer_services.get_customer_rental_history(customer_id,conn)
+        return await customer_services.get_customer_rental_history(customer_id,conn)
 
 
-@router.get("/{customer_id}/payment",dependencies=[Depends(user_rate_limit(10,60))])
+@router.get("/{customer_id}/payment",dependencies=[Depends(user_rate_limit(10,60000))])
 async def get_customer_payment_history(customer_id:int,
                                     conn=Depends(get_db),
                                     current_user=Depends(get_current_user)
                                       ):
 
-        return customer_services.get_customer_payment_history(customer_id,conn)  
+        return await customer_services.get_customer_payment_history(customer_id,conn)  
 
-@router.post("",dependencies=[Depends(user_rate_limit(10,60))])
+@router.post("",dependencies=[Depends(user_rate_limit(10,60000))])
 async def add_customer(customer:NewCustomer,conn=Depends(get_db),
                     current_user=Depends(get_current_user)
                     ):
 
-      return customer_services.add_customer(
+      return await customer_services.add_customer(
             customer.store_id,customer.first_name,
             customer.last_name,customer.email,
             customer.address_id,
@@ -78,4 +78,4 @@ async def add_customer(customer:NewCustomer,conn=Depends(get_db),
 async def delete_customer(customer_id:int,conn=Depends(get_db),
                         current_user=Depends(get_current_user)):
 
-    return customer_services.delete_customer(customer_id,conn)
+    return await customer_services.delete_customer(customer_id,conn)

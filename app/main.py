@@ -338,14 +338,14 @@ async def redis_error_handler(request:Request,exc:RedisError):
 
 # general
 
-@app.exception_handler(ValueError)
-async def value_error_handler(request:Request,exc:ValueError):
+# @app.exception_handler(ValueError)
+# async def value_error_handler(request:Request,exc:ValueError):
 
-    return JSONResponse(
-        status_code=422,
-        content={
-            "error":"Value error",
-            "details":"Digit should not be negative",
+#     return JSONResponse(
+#         status_code=422,
+#         content={
+#             "error":"Value error",
+#             "details":"Digit should not be negative",
         
-        }
-    )
+#         }
+#     )
