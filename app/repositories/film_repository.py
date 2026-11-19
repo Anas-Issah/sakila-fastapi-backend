@@ -1,17 +1,17 @@
 
-def get_film(film_id:int,conn):
-     with conn.cursor() as cur:
-            cur.execute(
+async def get_film(film_id:int,conn):
+     async with conn.cursor() as cur:
+            await cur.execute(
                 "SELECT film_id,title,release_year,length,rating " \
                 "FROM film " \
                 "WHERE film_id = %s",(film_id,)
     
             )
-    
-            return cur.fetchone()
+            film = await cur.fetchone()
+            return film
 
 
-def get_films(offset:int|None,limit:int|None,conn):
+async def get_films(offset:int|None,limit:int|None,conn):
 
     params = []
 
@@ -26,20 +26,22 @@ def get_films(offset:int|None,limit:int|None,conn):
         params.append(limit)
         query = query + "LIMIT %s"
     
-    with conn.cursor() as cur:
-        cur.execute(query,params)
+    async with conn.cursor() as cur:
+        await cur.execute(query,params)
 
-        return cur.fetchall()
+        films = await cur.fetchall()
+        return films
 
 
-def search_by_title(film_title:str,conn):
+async def search_by_title(film_title:str,conn):
 
-    with conn.cursor() as cur:
+    async with conn.cursor() as cur:
 
         query = "SELECT film_id, title, release_year,length,rating " \
                            "FROM film " \
                            "WHERE title = %s"
 
-        cur.execute(query,(film_title,))
+        await cur.execute(query,(film_title,))
 
-        return cur.fetchone()
+        film = await cur.fetchone()
+        return film

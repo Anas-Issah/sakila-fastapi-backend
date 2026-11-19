@@ -297,6 +297,7 @@ async def psycopg_error_handler(request:Request,exc:DatabaseError):
     
     return JSONResponse(
             status_code=500,
+            
             content={
                 "error":"Database error",
                 "details":"A database error occured"
@@ -338,14 +339,14 @@ async def redis_error_handler(request:Request,exc:RedisError):
 
 # general
 
-# @app.exception_handler(ValueError)
-# async def value_error_handler(request:Request,exc:ValueError):
+@app.exception_handler(Exception)
+async def value_error_handler(request:Request,exc:Exception):
 
-#     return JSONResponse(
-#         status_code=422,
-#         content={
-#             "error":"Value error",
-#             "details":"Digit should not be negative",
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error":"Error",
+            "details":"Internal service error",
         
-#         }
-#     )
+        }
+    )

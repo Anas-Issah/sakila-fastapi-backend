@@ -17,7 +17,7 @@ from fastapi import Depends
 
 from app.exceptions.users import UsernameTaken,UserNotFound,WrongUserPassword
 import app.repositories.users as repo_users
-
+from app.core.app_logging import logging_setup
 
 oauth2_scheme = OAuth2PasswordBearer("/api/v1/users/login")
 
@@ -29,7 +29,9 @@ ALGORITHM = str(os.getenv("ALGORITHM"))
 revoked_refresh_tokens = set()
 user_requests = {}
 
+logging_setup()
 logger = logging.getLogger(__name__)
+
 
 def hashed_word(password:str):
 
@@ -247,7 +249,11 @@ def  user_rate_limit(rate:int,window:int):
         except HTTPException:
             raise
 
-        await delete_local_rate_limit(now_ms,window)
+        try:
+            await delete_local_rate_limit(now_ms,window)
+
+        except:
+            pass
         
         logger.info("redis unavailable:using python dictionary for rate limiting")
 
